@@ -308,8 +308,8 @@ namespace Blackjack
                  Console.ForegroundColor = ConsoleColor.Gray;
             }
 
-            // 手札が18以下ならカードを引く
-            if (DealerScore <= 18)
+            // 手札が17未満ならカードを引く
+            if (DealerScore < 17)
             {
                 Draw();
             }
