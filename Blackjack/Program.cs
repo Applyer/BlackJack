@@ -29,13 +29,9 @@ namespace Blackjack
                     rematch = Console.ReadLine();
                 } while ((rematch != "y") && (rematch != "n"));
 
-                Console.Clear();
-
                 // 再戦しない場合ループを抜けて終了
                 if (rematch == "n")
-                {
                     break;
-                }
             }
         }
     }

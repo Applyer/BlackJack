@@ -27,7 +27,7 @@ namespace Blackjack
         bool isPlayerTurn = true;
 
         // バースト
-        bool isWriteBurst = false;
+        bool isBurst = false;
 
         // プレイヤーがブラックジャック
         bool isPlayerBJ = false;
@@ -35,7 +35,7 @@ namespace Blackjack
         // ディーラーがブラックジャック
         bool isDealerBJ = false;
 
-        // 結果に行くか
+        // 比較可能か
         bool canCompare = false;
 
         // プレイヤーの手札の合計
@@ -63,6 +63,18 @@ namespace Blackjack
             Draw();
             isPlayerTurn = true;
 
+            // コンソールを初期化
+            Console.Clear();
+
+            // 書き込みの色設定
+            Console.ForegroundColor = ConsoleColor.Yellow;
+
+            // ゲーム開始
+            Console.WriteLine("☆ﾐ ゲーム開始 ﾐ☆");
+
+            // 書き込みの色設定
+            Console.ForegroundColor = ConsoleColor.Gray;
+
             // 両者の手札を公開
             ManageDealerhand();
             ManagePlayerhand();
@@ -71,23 +83,40 @@ namespace Blackjack
         // カードを1枚引く
         public void Draw()
         {
+            // デッキの1番最初のカードを取得
             Drawcard = Shuffled.DeckRecip[0];
+
+            // デッキの1番最初のカードを削除
             NowDeck.Remove(NowDeck[0]);
+
+            // プレイヤーのターンなら
             if (isPlayerTurn)
             {
+                // 書き込みの色設定
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("カードを1枚引くぜ！");
+
+                // 取得したカードをプレイヤーの手札に加える
                 PlayerHand.Add(Drawcard);
+
+                // プレイヤーのスコアの初期化
                 PlayerScore = 0;
             }
+            // ディーラーのターンなら
             else
             {
+                // 書き込みの色設定
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine("ヤツがカードを1枚引いた！");
+
+                // 取得したカードをディーラーの手札に加える
                 DealerHand.Add(Drawcard);
+
+                // ディーラーのスコアの初期化
                 DealerScore = 0;
             }
 
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
@@ -95,20 +124,25 @@ namespace Blackjack
         // プレイヤーの手札
         public void ManagePlayerhand()
         {
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("");
             Console.WriteLine("俺の手札");
 
+            // マークによって表示色の変更
             foreach (Card hand in PlayerHand)
             {
+                // ダイヤかハートなら赤
                 if ((hand.Mark == "ダイヤ") || (hand.Mark == "ハート"))
                     Console.ForegroundColor = ConsoleColor.Red;
 
+                // それ以外ならグレー
                 else
                     Console.ForegroundColor = ConsoleColor.DarkGray;
 
                 Console.Write(hand.Mark);
 
+                // 一部数字を記号化し手札の合計を計算
                 switch (hand.Number)
                 {
                     case 1:
@@ -134,22 +168,27 @@ namespace Blackjack
                 }
             }
 
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("合計値{0}", PlayerScore);
             Console.WriteLine("");
             Console.ForegroundColor = ConsoleColor.Gray;
 
-            // バースト
+            // 21を超えたらバースト
             if (PlayerScore > 21)
             {
-                isWriteBurst = true;
+                isBurst = true;
+
+                // ターンを代わる
                 isPlayerTurn = false;
             }
 
-            // ブラックジャック
+            // 21ぴったりならブラックジャック
             if (PlayerScore == 21)
             {
                 isPlayerBJ = true;
+
+                // ターンを代わる
                 isPlayerTurn = false;
             }
         }
@@ -157,21 +196,26 @@ namespace Blackjack
         // ディーラーの手札
         public void ManageDealerhand()
         {
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Magenta;
 
+            // 最初の手札表示用
             if (isPlayerTurn)
             {
                 Console.WriteLine("");
                 Console.WriteLine("ディーラーの手札");
 
+                // ダイヤかハートなら赤
                 if ((DealerHand[0].Mark == "ダイヤ") || (DealerHand[0].Mark == "ハート"))
                     Console.ForegroundColor = ConsoleColor.Red;
 
+                // それ以外ならグレー
                 else
                     Console.ForegroundColor = ConsoleColor.DarkGray;
 
                 Console.Write(DealerHand[0].Mark);
 
+                // 一部カードの数字を変更
                 switch (DealerHand[0].Number)
                 {
                     case 1:
@@ -191,125 +235,134 @@ namespace Blackjack
                         break;
                 }
 
+                // 書き込みの色設定
                 Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine("と謎のカード1枚");
+                Console.WriteLine("＋謎のカード1枚");
             }
+            // 最初のターンでないなら
             else
             {
+                // ディーラーのAIを実行
                 DealerAI();
             }
 
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
         // ディーラーAI
         public void DealerAI()
         {
+            // 手札の合計を計算
             foreach (Card ManageDealerhand in DealerHand)
             {
-                switch (ManageDealerhand.Number)
-                {
-                    case 1:
-                        DealerScore += 1;
-                        break;
-                    case 11:
-                        DealerScore += 10;
-                        break;
-                    case 12:
-                        DealerScore += 10;
-                        break;
-                    case 13:
-                        DealerScore += 10;
-                        break;
-                    default:
-                        DealerScore += ManageDealerhand.Number;
-                        break;
-                }
+                // 11以上なら10として計算
+                if (ManageDealerhand.Number >= 11)
+                    DealerScore += 10;
+
+                // それ以外なら普通に計算
+                else
+                    DealerScore += ManageDealerhand.Number;
             }
 
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Gray;
 
             // 手札が17未満ならカードを引く
             if (DealerScore < 17)
-            {
                 Draw();
-            }
 
-            // バースト
+            // 21を超えたらバースト
             else if (DealerScore > 21)
             {
-                isWriteBurst = true;
+                isBurst = true;
                 isPlayerTurn = true;
             }
 
-            // ブラックジャック
+            // 21ぴったりならブラックジャック
             else if (DealerScore == 21)
             {
                 isDealerBJ = true;
                 isPlayerTurn = true;
             }
-
+            // それ以外ならターンを代わる
             else
-            {
                 isPlayerTurn = true;
-            }
         }
 
-        // デッキから1枚引くか？
+        // デッキから1枚引くか確認
         public void ConfirmDraw()
         {
+            // プレイヤーにカードを引くか確認をする
             do
             {
                 Console.Write("どうする？「ヒット(H)」or「スタンド(S)」");
                 decision = Console.ReadLine();
             }
+            // 入力が「h」か「s」以外なら無限ループ
             while ((decision != "h") && (decision != "s"));
         }
 
-        // まだ引くか
+        // まだ引くかターンを終わるか
         public void RuleDraw()
         {
+            // 入力が「h」なら
             if (decision == "h")
             {
+                // カードを引く
                 Draw();
+
+                // プレイヤーの手札
                 ManagePlayerhand();
             }
+            // 入力が「s」なら
             else if (decision == "s")
-            {
+                // ターンを代わる
                 isPlayerTurn = false;
-            }
         }
 
-        // 勝った
+        // 勝った表示
         public void WriteWin()
         {
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("俺の勝ちだぁぁぁ！");
+
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
-        // 負けた
+        // 負けた表示
         public void WriteLose()
         {
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("負けちまった・・・");
+
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
         // 引き分け表示
         public void WriteTie()
         {
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("まさかのひきわけ");
+
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
         // 結果がブラックジャック
         public void WriteBJ()
         {
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.Black;
             Console.BackgroundColor = ConsoleColor.White;
             Console.WriteLine("ブラックジャック");
+
+            // 書き込みの色設定
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Gray;
         }
@@ -317,9 +370,12 @@ namespace Blackjack
         // 結果がバースト
         public void WriteBurst()
         {
+            // 書き込みの色設定
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.BackgroundColor = ConsoleColor.DarkRed;
             Console.WriteLine("バースト");
+
+            // 書き込みの色設定
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Gray;
         }
@@ -327,22 +383,29 @@ namespace Blackjack
         // ゲームの流れ
         public void GameFlow()
         {
+            // ゲームを始める準備
             Standby();
+
+            // プレイヤーのターンである限り
             while (isPlayerTurn)
             {
+                // デッキから1枚引くか確認
                 ConfirmDraw();
+
+                // まだ引くかターンを終わるか
                 RuleDraw();
             }
 
-            // バーストか
-            if (isWriteBurst)
+            // バーストなら負けて試合終了
+            if (isBurst)
             {
                 WriteBurst();
                 WriteLose();
                 isPlayerTurn = true;
             }
-
-            if (!isWriteBurst)
+            
+            // バースト以外ならターンを代わる
+            if (!isBurst)
             {
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine("ディーラーのターン！");
@@ -351,26 +414,34 @@ namespace Blackjack
             // ディーラーのターン
             while (!isPlayerTurn)
             {
+                // 手札の処理
                 ManageDealerhand();
+
+                // 比較可能
                 canCompare = true;
             }
 
+            // 比較可能なら
             if (canCompare)
             {
+                // 書き込みの色設定
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine("");
                 Console.WriteLine("ディーラーの手札");
 
                 foreach (Card dManageDealerhand in DealerHand)
                 {
+                    // ダイヤかハートなら赤
                     if ((dManageDealerhand.Mark == "ダイヤ") || (dManageDealerhand.Mark == "ハート"))
                         Console.ForegroundColor = ConsoleColor.Red;
 
+                    // それ以外ならグレー
                     else
                         Console.ForegroundColor = ConsoleColor.DarkGray;
 
                     Console.Write(dManageDealerhand.Mark);
 
+                    // 一部カードの数字を変更
                     switch (dManageDealerhand.Number)
                     {
                         case 1:
@@ -391,50 +462,76 @@ namespace Blackjack
                     }
                 }
 
+                // 書き込みの色設定
                 Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine("合計は{0}", DealerScore);
+                Console.WriteLine("合計値{0}", DealerScore);
+                Console.WriteLine("");
                 Console.ForegroundColor = ConsoleColor.Gray;
 
-                // バーストか
-                if (isWriteBurst)
+                // バーストなら負けて試合終了
+                if (isBurst)
                 {
+                    // バースト表示
                     WriteBurst();
+
+                    // プレイヤーの勝ち
                     WriteWin();
                 }
                 // 両者がブラックジャックなら
                 else if (isDealerBJ && isPlayerBJ)
                 {
+                    // ブラックジャック表示
                     WriteBJ();
+
+                    // 引き分け
                     WriteTie();
                 }
                 // プレイヤーがブラックジャックなら
                 else if (isPlayerBJ)
                 {
+                    // ブラックジャック表示
                     WriteBJ();
+
+                    // プレイヤーの勝ち
                     WriteWin();
                 }
                 // ディーラーがブラックジャックなら
                 else if (isDealerBJ)
                 {
+                    // ブラックジャック表示
                     WriteBJ();
+
+                    // プレイヤーの負け
                     WriteLose();
                 }
                 // ふつうの判定
                 else
                 {
+                    // プレイヤーの合計値が大きいなら
                     if (PlayerScore > DealerScore)
+
+                        // プレイヤーの勝ち
                         WriteWin();
+
+                    // ディーラーの合計値が大きいなら
                     else if (PlayerScore < DealerScore)
+
+                        // プレイヤーの負け
                         WriteLose();
+
+                    // それ以外なら
                     else
-                    {
+
+                        // 引き分け
                         WriteTie();
-                    }
 
                 }
 
+                // ターンを代わる
                 isPlayerTurn = true;
             }
+
+            Console.WriteLine("");
         }
     }
 }

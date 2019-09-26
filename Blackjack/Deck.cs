@@ -75,6 +75,7 @@ namespace Blackjack
                 deck.Add(carddata);
             }
 
+            // デッキをプロパティに保存
             DeckRecip = deck;
             return deck;
         }
