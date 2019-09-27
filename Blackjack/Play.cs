@@ -56,11 +56,15 @@ namespace Blackjack
             // プレイヤーにカードを2枚配る
             Draw();
             Draw();
+
+            // 一時的に相手ターンにする
             isPlayerTurn = false;
 
             // ディーラーにカードを2枚配る
             Draw();
             Draw();
+
+            // ターンをプレイヤーに戻す
             isPlayerTurn = true;
 
             // コンソールを初期化
